@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login page</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: grid;
+            place-items: center;
+            background: #1a0b2e; 
+            background-image: url('purplebackground.jpeg');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            perspective: 2000px;
+            /* Prevents refresh on swipe down */
+            overscroll-behavior-y: contain;
+        }
+
+        .box {
+            position: relative;
+            width: 400px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(5px) saturate(150%);
+            -webkit-backdrop-filter: blur(5px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+            /* Smoother transition for the reset/return animation */
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 1;
+            user-select: none;
+        }
+
+        .box::before {
+            content: '';
+            position: absolute;
+            inset: -1.5px;
+            border-radius: 21px;
+            padding: 1.5px;
+            background: radial-gradient(
+                circle at var(--grad-x, 50%) var(--grad-y, 50%), 
+                rgba(255, 255, 255, 0.7) 0%, 
+                rgba(255, 255, 255, 0) 50%
+            );
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .my-input-class {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .my-input-class::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .my-input-class:hover, .my-input-class:focus {
+            box-shadow: 0 0 15px 2px rgba(255, 255, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .options {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 25px;
+        }
+
+        .options a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            background: white;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .login-btn:hover {
+            box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.8);
+            transform: scale(1.02);
+        }
+
+        .register-link {
+            font-size: 0.9rem;
+        }
+
+        .register-link a {
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        @media (max-width: 450px) {
+            .box {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="box" id="tilt-box">
+        <h2>Login</h2>
+        <form>
+            <div class="input-group">
+                <input type="text" class="my-input-class" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <input type="password" class="my-input-class" placeholder="Password">
+            </div>
+            
+            <div class="options">
+                <label style="cursor: pointer;"><input type="checkbox"> Remember me</label>
+                <a href="#">Forgot Password?</a>
+            </div>
+            
+            <a href="web.html">
+                <button type="button" class="login-btn">Login</button>
+            </a>
+            
+            <div class="register-link">
+                Don't have an account? <a href="register.html">Register</a>
+            </div>
+        </form>
+    </section>
+
+    <script>
+        const box = document.getElementById('tilt-box');
+
+        // Combined apply effect
+        function applyLiquidEffect(x, y) {
+            // Instant tracking during movement
+            box.style.transition = 'none';
+            
+            const gradX = 50 + (x * 2.5);
+            const gradY = 50 + (y * 2.5);
+            box.style.setProperty('--grad-x', `${gradX}%`);
+            box.style.setProperty('--grad-y', `${gradY}%`);
+            box.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+            
+            // Allow smooth reset animation
+            requestAnimationFrame(() => {
+                box.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
+            });
+        }
+
+        const resetEffect = () => {
+            box.style.transform = `rotateY(0deg) rotateX(0deg)`;
+            box.style.setProperty('--grad-x', `50%`);
+            box.style.setProperty('--grad-y', `50%`);
+        };
+
+        // Phone Touch
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            const x = (window.innerWidth / 2 - touch.pageX) / 25;
+            const y = (window.innerHeight / 2 - touch.pageY) / 25;
+            applyLiquidEffect(-x, -y);
+        }, { passive: true });
+
+        window.addEventListener('touchend', resetEffect);
+
+        // Phone Tilt (Gyroscope)
+        window.addEventListener('deviceorientation', (event) => {
+            let x = event.gamma; 
+            let y = event.beta;
+            x = Math.max(Math.min(x, 15), -15);
+            y = Math.max(Math.min(y - 45, 15), -15); 
+            applyLiquidEffect(x, y);
+        });
+
+        // Desktop Mouse
+        window.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.pageX) / 50;
+            const y = (window.innerHeight / 2 - e.pageY) / 50;
+            applyLiquidEffect(-x, -y);
+        });
+
+        window.addEventListener('mouseleave', resetEffect);
+
+        // Permissions for iOS
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            document.body.addEventListener('click', () => {
+                DeviceOrientationEvent.requestPermission().catch(console.error);
+            }, { once: true });
+        }
+    </script>
+</body>
+</html>

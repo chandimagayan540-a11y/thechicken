@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Glass Register</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display:grid;
+            place-items: center;
+            background: #001220; 
+            background-image: url('blue.jpg');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            perspective: 2000px;
+            /* Prevent accidental refreshing on mobile pull-down */
+            overscroll-behavior-y: contain;
+        }
+
+        .box {
+            position: relative;
+            width: 400px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(5px) saturate(150%);
+            -webkit-backdrop-filter: blur(5px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+            /* Added 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)' for smooth return animation */
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 1;
+            cursor: pointer;
+            /* Prevent text selection while interacting on mobile */
+            user-select: none;
+        }
+
+        .box::before {
+            content: '';
+            position: absolute;
+            inset: -1.5px;
+            border-radius: 21px;
+            padding: 1.5px;
+            background: radial-gradient(
+                circle at var(--grad-x, 50%) var(--grad-y, 50%), 
+                rgba(255, 255, 255, 0.7) 0%, 
+                rgba(255, 255, 255, 0) 50%
+            );
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            text-transform: capitalize;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .my-input-class {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .my-input-class::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .my-input-class:hover, .my-input-class:focus {
+            box-shadow: 0 0 15px 2px rgba(255, 255, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            background: white;
+            color: #001220;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .login-btn:hover {
+            box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.8);
+            transform: scale(1.02);
+            opacity: 1;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        @media (max-width: 450px) {
+            .box {
+                width: 90%;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="box" id="tilt-box">
+        <h2>Register</h2>
+        <form>
+            <div class="input-group">
+                <input type="text" class="my-input-class" placeholder="Username"required>
+            </div>
+            <div class="input-group">
+                <input type="password" class="my-input-class" placeholder="Password"required>
+            </div>
+            <div class="input-group">
+                <input type="password" class="my-input-class" placeholder="Confirm Password"required>
+            </div>
+            <a href="index.html">
+                <button type="button" class="login-btn">Register</button>
+            </a>
+        </form>
+    </section>
+
+    <script>
+        const box = document.getElementById('tilt-box');
+
+        // Mouse Move Effect
+        window.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.pageX) / 50;
+            const y = (window.innerHeight / 2 - e.pageY) / 50;
+            applyLiquidEffect(-x, -y);
+        });
+
+        // Touch Interaction (Phone)
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            const x = (window.innerWidth / 2 - touch.pageX) / 25; // Sensitivity adjusted for touch
+            const y = (window.innerHeight / 2 - touch.pageY) / 25;
+            applyLiquidEffect(-x, -y);
+        }, { passive: true });
+
+        // Reset position when touch/mouse leaves
+        const resetEffect = () => {
+            box.style.transform = `rotateY(0deg) rotateX(0deg)`;
+            box.style.setProperty('--grad-x', `50%`);
+            box.style.setProperty('--grad-y', `50%`);
+        };
+
+        window.addEventListener('touchend', resetEffect);
+        window.addEventListener('mouseleave', resetEffect);
+
+        // Gyroscope Effect
+        window.addEventListener('deviceorientation', (event) => {
+            let x = event.gamma; 
+            let y = event.beta;
+            // Limit tilt range
+            x = Math.max(Math.min(x, 15), -15);
+            y = Math.max(Math.min(y - 45, 15), -15); 
+            applyLiquidEffect(x, y);
+        });
+
+        function applyLiquidEffect(x, y) {
+            // Temporarily disable transition during active movement for responsiveness
+            box.style.transition = 'none';
+            
+            const gradX = 50 + (x * 2.5);
+            const gradY = 50 + (y * 2.5);
+            box.style.setProperty('--grad-x', `${gradX}%`);
+            box.style.setProperty('--grad-y', `${gradY}%`);
+            box.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+            
+            // Re-enable transition for smooth reset after a frame
+            requestAnimationFrame(() => {
+                box.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)';
+            });
+        }
+
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            document.body.addEventListener('click', () => {
+                DeviceOrientationEvent.requestPermission().catch(console.error);
+            }, { once: true });
+        }
+    </script>
+</body>
+</html>
